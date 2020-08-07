@@ -196,11 +196,11 @@ export default class DruidDatasource {
 
 
   scanQuery(datasource, intervals, columns, filters, options){
-    let query: Druid.DruidScanQuery = {
+    let query: any = {
       "queryType": "scan",
       "dataSource": datasource,
       "legacy": true,
-      "granularity": Druid.Granularity.all,
+      // "granularity": Druid.Granularity.all,
       "resultFormat": "compactedList",
       "columns": columns,
       "intervals": intervals

@@ -64,12 +64,12 @@ export interface DruidSelectQuery extends AbstractDruidQuery {
   metrics: Array<string | Object>;
 }
 
-export interface DruidScanQuery extends AbstractDruidQuery {
-  queryType: 'scan';
-  legacy: Boolean;
-  resultFormat: string;
-  columns: string | Object;
-}
+// export interface DruidScanQuery extends AbstractDruidQuery {
+//   queryType: 'scan';
+//   legacy: Boolean;
+//   resultFormat: string;
+//   columns: string | Object;
+// }
 
 export interface DruidFilterLogical {
   type: 'or' | 'and';
