@@ -115,7 +115,7 @@ export default class DruidDatasource {
     }
     else if(target.queryType === 'scan'){
       promise = this.scanQuery(datasource, intervals, scanColumns, filters, options)
-        .then(function(response){
+        .then(response => {
           return this.convertScanData(response.data);
       });
     }
