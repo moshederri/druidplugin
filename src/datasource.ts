@@ -114,8 +114,8 @@ export default class DruidDatasource {
         });
     }
     else if(target.queryType === 'scan'){
-      promise = this.scanQuery(datasource, intervals, scanColumns, filters, options);
-      return promise.then(function(response){
+      promise = this.scanQuery(datasource, intervals, scanColumns, filters, options)
+        .then(function(response){
           return this.convertScanData(response.data);
       });
     }
