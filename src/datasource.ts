@@ -353,7 +353,9 @@ export default class DruidDatasource {
 
   buildFilterTree(filters, options): Druid.DruidFilter {
     //Do template variable replacement
-    if((!filters || filters.length == 0)) return null;
+    if(!filters || filters.length === 0) {
+      return null;
+    }
 
     const replacedFilters = filters.map(filter => {
       return this.replaceTemplateValues(filter, this.filterTemplateExpanders[filter.type], options.scopedVars);
