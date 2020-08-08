@@ -85,7 +85,7 @@ export default class DruidDatasource {
   doQuery(from, to, granularity, target, options) {
     let datasource = target.druidDS;
     let filters = target.filters;
-    let aggregators = target.aggregators.map(this.splitCardinalityFields);
+    let aggregators = target.aggregators && target.aggregators.map(this.splitCardinalityFields);
     let postAggregators = target.postAggregators;
     let groupBy = _.map(target.groupBy, (e) => { return this.templateSrv.replace(e) });
     let limitSpec = null;
