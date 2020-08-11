@@ -1,6 +1,6 @@
 {
   "type": "datasource",
-  "name": "Druid",
+  "name": "Druid-SG",
   "id": "sg-druid-datasource",
 
   "metrics": true,

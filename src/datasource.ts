@@ -57,7 +57,7 @@ export default class DruidDatasource {
     const to = this.dateToMoment(options.range.to, true);
 
     let promises = options.targets.map(target => {
-      if (target.hide === true || _.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "select")) {
+      if (target.hide === true || _.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "scan")) {
         const d = this.q.defer();
         d.resolve([]);
         return d.promise;
@@ -85,7 +85,7 @@ export default class DruidDatasource {
   doQuery(from, to, granularity, target, options) {
     let datasource = target.druidDS;
     let filters = target.filters;
-    let aggregators = target.aggregators.map(this.splitCardinalityFields);
+    let aggregators = target.aggregators && target.aggregators.map(this.splitCardinalityFields);
     let postAggregators = target.postAggregators;
     let groupBy = _.map(target.groupBy, (e) => { return this.templateSrv.replace(e) });
     let limitSpec = null;
@@ -93,12 +93,9 @@ export default class DruidDatasource {
     let intervals = this.getQueryIntervals(from, to);
     let promise = null;
 
-    let selectMetrics = target.selectMetrics;
     let selectDimensions = target.selectDimensions;
-    let selectThreshold = target.selectThreshold;
-    if (!selectThreshold) {
-      selectThreshold = 5;
-    }
+    let scanColumns = target.scanColumns;
+
     
     if (target.queryType === 'topN') {
       let threshold = target.threshold;
@@ -116,10 +113,10 @@ export default class DruidDatasource {
           return this.convertGroupByData(response.data, groupBy, metricNames, target.alias);
         });
     }
-    else if (target.queryType === 'select') {
-      promise = this.selectQuery(datasource, intervals, granularity, selectDimensions, selectMetrics, filters, selectThreshold, options);
+    else if(target.queryType === 'scan'){
+      promise = this.scanQuery(datasource, intervals, scanColumns, filters, options);
       return promise.then(response => {
-        return this.convertSelectData(response.data);
+          return this.convertScanData(response.data);
       });
     }
     else {
@@ -194,6 +191,22 @@ export default class DruidDatasource {
       query.filter = this.buildFilterTree(filters, options);
     }
 
+    return this.druidQuery(query);
+  };
+
+
+  scanQuery(datasource, intervals, columns, filters, options){
+    let query: any = {
+      "queryType": "scan",
+      "dataSource": datasource,
+      "legacy": true,
+      // "granularity": Druid.Granularity.all,
+      "resultFormat": "compactedList",
+      "columns": columns,
+      "intervals": intervals
+    };
+
+    query.filter = this.buildFilterTree(filters, options);
     return this.druidQuery(query);
   };
 
@@ -340,6 +353,10 @@ export default class DruidDatasource {
 
   buildFilterTree(filters, options): Druid.DruidFilter {
     //Do template variable replacement
+    if(!filters || filters.length === 0) {
+      return null;
+    }
+
     const replacedFilters = filters.map(filter => {
       return this.replaceTemplateValues(filter, this.filterTemplateExpanders[filter.type], options.scopedVars);
     })
@@ -568,27 +585,25 @@ export default class DruidDatasource {
     });
   }
 
-  convertSelectData(data) {
-    const resultList = _.map(data, "result");
-    const eventsList = _.map(resultList, "events");
-    const eventList = _.flatten(eventsList);
-    const result = {};
-    for (let i = 0; i < eventList.length; i++) {
-      const event = eventList[i].event;
-      const timestamp = event.timestamp;
-      if (_.isEmpty(timestamp)) {
-        continue;
-      }
-      for (const key in event) {
-        if (key !== "timestamp") {
-          if (!result[key]) {
-            result[key] = { "target": key, "datapoints": [] };
-          }
-          result[key].datapoints.push([event[key], timestamp]);
-        }
-      }
+  convertScanData(data){
+    let results = [];
+    for(let i = 0; i < data.length; i++){
+      results[i] = {"columns": [], "rows": [], "type": "table"};
+  
+      let columns = data[i].columns.map( columnName => {return {"text": columnName}});
+      columns.splice(0, 1, {
+          "text": "Time",
+          "type": "time",
+          "sort": true,
+          "desc": true
+        });
+  
+      results[i].columns =columns;
+  
+      results[i].rows = data[i].events;
     }
-    return _.values(result);
+
+    return results;
   }
 
   dateToMoment(date, roundUp) {

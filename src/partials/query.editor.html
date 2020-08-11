@@ -128,79 +128,43 @@
               ng-blur="ctrl.targetBlur()">
       </input>
     </div>
-    <div ng-switch-when="select" class="gf-form">
+
+    <div ng-switch-when="scan" class="gf-form">
       <label class="gf-form-label query-keyword width-9">
-        Dimensions
+        Columns
         <info-popover mode="right-normal">
           (empty = *)
         </info-popover>
       </label>
-    </div>
-    <div class="gf-form" ng-switch-when="select" ng-repeat="dim in ctrl.target.selectDimensions track by $index">
-      <label class="gf-form-label">&nbsp;{{dim}}
-        <a ng-click="ctrl.removeSelectDimension($index)">
+    </div>    
+
+    <div class="gf-form" ng-switch-when="scan" ng-repeat="column in ctrl.target.scanColumns track by $index">
+      <label class="gf-form-label">&nbsp;{{column}}
+        <a ng-click="ctrl.removeScanColumn($index)">
           <i class="fa fa-remove"></i>
         </a>
       </label>
     </div>
-    <div class="gf-form" ng-switch-when="select" ng-hide="ctrl.addDimensionsMode">
+
+    <div class="gf-form" ng-switch-when="scan" ng-hide="ctrl.addScanColumnsMode">
       <label class="gf-form-label query-keyword">
-        <a ng-click="ctrl.addSelectDimensions()"><i class="fa fa-plus"></i></a>
+        <a ng-click="ctrl.addScanColumn()"><i class="fa fa-plus"></i></a>
       </label>
     </div>
-    <div class="gf-form" ng-switch-when="select" ng-show="ctrl.addDimensionsMode">
-      <input type="text" class="gf-form-input input-medium" ng-model="ctrl.target.currentSelect.dimension" spellcheck='false' placeholder="dimension" data-min-length=0 data-items=100 bs-typeahead="ctrl.getDimensions" />
-      <label class="gf-form-label" ng-show="ctrl.errors.selectDimensions">
-        <a bs-tooltip="ctrl.errors.selectDimensions" style="color: rgb(229, 189, 28)">
+
+    <div class="gf-form" ng-show="ctrl.addScanColumnsMode">
+      <input type="text" class="gf-form-input input-medium" ng-model="ctrl.target.currentScan.column" spellcheck='false' placeholder="column" data-min-length=0 data-items=100 bs-typeahead="ctrl.getScanColumns" />
+      <label class="gf-form-label" ng-show="ctrl.errors.scanColumns">
+        <a bs-tooltip="ctrl.errors.scanColumns" style="color: rgb(229, 189, 28)">
           <i class="fa fa-warning"></i>
         </a>
       </label>
       <label class="gf-form-label">
-        <a ng-click="ctrl.addSelectDimensions()" ng-hide="ctrl.errors.selectDimensions">add dimension</a>
-        <a ng-click="ctrl.clearCurrentSelectDimension()"><i class="fa fa-remove"></i></a>
+        <a ng-click="ctrl.addScanColumn()" ng-hide="ctrl.errors.scanColumns">add tag</a>
+        <a ng-click="ctrl.clearCurrentScanColumn()"><i class="fa fa-remove"></i></a>
       </label>
     </div>
-    <div ng-switch-when="select" class="gf-form">
-      <label class="gf-form-label query-keyword width-8">
-        Metrics
-        <info-popover mode="right-normal">
-          (empty = *)
-        </info-popover>
-      </label>
-    </div>
-    <div class="gf-form" ng-switch-when="select" ng-repeat="metric in ctrl.target.selectMetrics track by $index">
-      <label class="gf-form-label">&nbsp;{{metric}}
-        <a ng-click="ctrl.removeSelectMetric($index)">
-          <i class="fa fa-remove"></i>
-        </a>
-      </label>
-    </div>
-    <div class="gf-form" ng-switch-when="select" ng-hide="ctrl.addMetricsMode">
-      <label class="gf-form-label query-keyword">
-        <a ng-click="ctrl.addSelectMetrics()"><i class="fa fa-plus"></i></a>
-      </label>
-    </div>
-    <div class="gf-form" ng-show="ctrl.addMetricsMode">
-      <input type="text" class="gf-form-input input-medium" ng-model="ctrl.target.currentSelect.metric" spellcheck='false' placeholder="metric" data-min-length=0 data-items=100 bs-typeahead="ctrl.getMetrics" />
-      <label class="gf-form-label" ng-show="ctrl.errors.selectMetrics">
-        <a bs-tooltip="ctrl.errors.selectMetrics" style="color: rgb(229, 189, 28)">
-          <i class="fa fa-warning"></i>
-        </a>
-      </label>
-      <label class="gf-form-label">
-        <a ng-click="ctrl.addSelectMetrics()" ng-hide="ctrl.errors.selectMetrics">add metric</a>
-        <a ng-click="ctrl.clearCurrentSelectMetric()"><i class="fa fa-remove"></i></a>
-      </label>
-    </div>
-    <div ng-switch-when="select" class="gf-form">
-      <label class="gf-form-label query-keyword">
-        Threshold
-      </label>
-      <input type="number" required class="gf-form-input input-small" ng-model="ctrl.target.selectThreshold" placeholder="5" spellcheck='false' ng-blur="ctrl.targetBlur()" />
-      <a bs-tooltip="ctrl.target.errors.selectThreshold" style="color: rgb(229, 189, 28)" ng-show="ctrl.target.errors.selectThreshold">
-        <i class="fa fa-warning"></i>
-      </a>
-    </div>
+
     <div ng-if="ctrl.target.queryType != 'timeseries'" class="gf-form gf-form--grow">
       <div ng-if="ctrl.target.queryType != 'timeseries'" class="gf-form-label gf-form-label--grow"></div>
     </div>
