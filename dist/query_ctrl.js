@@ -4,9 +4,9 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
         var extendStatics = function (d, b) {
             extendStatics = Object.setPrototypeOf ||
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+                function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
             return extendStatics(d, b);
-        }
+        };
         return function (d, b) {
             extendStatics(d, b);
             function __() { this.constructor = d; }
@@ -35,7 +35,7 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         "timeseries": lodash_1.default.noop.bind(_this),
                         "groupBy": _this.validateGroupByQuery.bind(_this),
                         "topN": _this.validateTopNQuery.bind(_this),
-                        "select": _this.validateSelectQuery.bind(_this)
+                        "scan": _this.validateScanQuery.bind(_this)
                     };
                     _this.filterValidators = {
                         "selector": _this.validateSelectorFilter.bind(_this),
@@ -47,6 +47,18 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         "cardinality": lodash_1.default.partial(_this.validateCardinalityAggregator.bind(_this), 'cardinality'),
                         "longSum": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'longSum'),
                         "doubleSum": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'doubleSum'),
+                        "floatSum": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'floatSum'),
+                        "longMin": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'longMin'),
+                        "doubleMin": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'doubleMin'),
+                        "floatMin": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'floatMin'),
+                        "longMax": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'longMax'),
+                        "doubleMax": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'doubleMax'),
+                        "floatMax": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'floatMax'),
+                        "longFirst": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'longFirst'),
+                        "doubleFirst": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'doubleFirst'),
+                        "floatFirst": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'floatFirst'),
+                        "stringFirst": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'stringFirst'),
+                        "stringLast": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'stringLast'),
                         "approxHistogramFold": _this.validateApproxHistogramFoldAggregator.bind(_this),
                         "hyperUnique": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'hyperUnique'),
                         "thetaSketch": _this.validateThetaSketchAggregator.bind(_this)
@@ -57,16 +69,20 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         "min": _this.validateMinPostAggregator.bind(_this),
                         "quantile": _this.validateQuantilePostAggregator.bind(_this)
                     };
-                    _this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
-                    _this.defaultQueryType = "timeseries";
+                    _this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null, 'quotient': null };
+                    _this.arithmeticPostAggregatorOrderings = ['null', 'numericFirst'];
+                    _this.defaultQueryType = "groupBy";
                     _this.defaultFilterType = "selector";
                     _this.defaultAggregatorType = "count";
-                    _this.defaultPostAggregator = { type: 'arithmetic', 'fn': '+' };
+                    _this.defaultPostAggregator = { type: 'arithmetic', 'fn': '+', ordering: 'null' };
                     _this.customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
-                    _this.defaultCustomGranularity = 'minute';
+                    _this.defaultCustomGranularity = 'hour';
                     _this.defaultSelectDimension = "";
                     _this.defaultSelectMetric = "";
-                    _this.defaultLimit = 5;
+                    _this.defaultScanColumn = "";
+                    _this.defaultLimit = 0;
+                    _this.defaultThreshold = 10;
+                    _this.defaultMaxStringBytes = 1024;
                     if (!_this.target.queryType) {
                         _this.target.queryType = _this.defaultQueryType;
                     }
@@ -75,7 +91,6 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     _this.aggregatorTypes = lodash_1.default.keys(_this.aggregatorValidators);
                     _this.postAggregatorTypes = lodash_1.default.keys(_this.postAggregatorValidators);
                     _this.arithmeticPostAggregator = lodash_1.default.keys(_this.arithmeticPostAggregatorFns);
-                    _this.customGranularity = _this.customGranularities;
                     _this.errors = _this.validateTarget();
                     if (!_this.target.currentFilter) {
                         _this.clearCurrentFilter();
@@ -84,6 +99,10 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         _this.target.currentSelect = {};
                         _this.clearCurrentSelectDimension();
                         _this.clearCurrentSelectMetric();
+                    }
+                    if (!_this.target.currentScan) {
+                        _this.target.currentScan = {};
+                        _this.clearCurrentScanColumn();
                     }
                     if (!_this.target.currentAggregator) {
                         _this.clearCurrentAggregator();
@@ -96,6 +115,12 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     }
                     if (!_this.target.limit) {
                         _this.target.limit = _this.defaultLimit;
+                    }
+                    if (!_this.target.threshold) {
+                        _this.target.threshold = _this.defaultThreshold;
+                    }
+                    if (!_this.target.maxStringBytes) {
+                        _this.target.maxStringBytes = _this.defaultMaxStringBytes;
                     }
                     _this.listDataSources = function (query, callback) {
                         _this.datasource.getDataSources()
@@ -122,6 +147,12 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     _this.getDimensionsAndMetrics = function (query, callback) {
                         _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                             .then(callback);
+                    };
+                    _this.getScanColumns = function (query, callback) {
+                        return _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
+                            .then(function (dimsAndMetrics) {
+                            callback([].concat(dimsAndMetrics.metrics).concat(dimsAndMetrics.dimensions));
+                        });
                     };
                     _this.getFilterValues = function (query, callback) {
                         var dimension = _this.target.currentFilter.dimension;
@@ -225,6 +256,27 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     this.addMetricsMode = false;
                     this.targetBlur();
                 };
+                DruidQueryCtrl.prototype.addScanColumn = function () {
+                    if (!this.addScanColumnsMode) {
+                        this.addScanColumnsMode = true;
+                        return;
+                    }
+                    if (!this.target.scanColumns) {
+                        this.target.scanColumns = [];
+                    }
+                    this.target.scanColumns.push(this.target.currentScan.column);
+                    this.clearCurrentScanColumn();
+                    this.targetBlur();
+                };
+                DruidQueryCtrl.prototype.removeScanColumn = function (index) {
+                    this.target.scanColumns.splice(index, 1);
+                    this.targetBlur();
+                };
+                DruidQueryCtrl.prototype.clearCurrentScanColumn = function () {
+                    this.target.currentScan.column = this.defaultScanColumn;
+                    this.addScanColumnsMode = false;
+                    this.targetBlur();
+                };
                 DruidQueryCtrl.prototype.addAggregator = function () {
                     if (!this.addAggregatorMode) {
                         this.addAggregatorMode = true;
@@ -271,13 +323,17 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     }
                     this.targetBlur();
                 };
+                DruidQueryCtrl.prototype.editPostAggregator = function (index) {
+                    this.addPostAggregatorMode = true;
+                    var delPostAggregator = this.target.postAggregators.splice(index, 1);
+                    this.target.currentPostAggregator = delPostAggregator[0];
+                };
                 DruidQueryCtrl.prototype.removePostAggregator = function (index) {
                     this.target.postAggregators.splice(index, 1);
                     this.targetBlur();
                 };
                 DruidQueryCtrl.prototype.clearCurrentPostAggregator = function () {
                     this.target.currentPostAggregator = lodash_1.default.clone(this.defaultPostAggregator);
-                    ;
                     this.addPostAggregatorMode = false;
                     this.targetBlur();
                 };
@@ -308,16 +364,29 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     return true;
                 };
                 DruidQueryCtrl.prototype.validateLimit = function (target, errs) {
-                    if (!target.limit) {
+                    if (target.limit == undefined) {
                         errs.limit = "Must specify a limit";
                         return false;
                     }
                     var intLimit = parseInt(target.limit);
                     if (isNaN(intLimit)) {
-                        errs.limit = "Limit must be a integer";
+                        errs.limit = "Limit must be an integer";
                         return false;
                     }
                     target.limit = intLimit;
+                    return true;
+                };
+                DruidQueryCtrl.prototype.validateThreshold = function (target, errs) {
+                    if (target.threshold == undefined) {
+                        errs.threshold = "Must specify a threshold";
+                        return false;
+                    }
+                    var intThreshold = parseInt(target.threshold);
+                    if (isNaN(intThreshold)) {
+                        errs.threshold = "Threshold must be an integer";
+                        return false;
+                    }
+                    target.threshold = intThreshold;
                     return true;
                 };
                 DruidQueryCtrl.prototype.validateOrderBy = function (target) {
@@ -348,16 +417,12 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         errs.druidMetric = "Must specify a metric";
                         return false;
                     }
-                    if (!this.validateLimit(target, errs)) {
+                    if (!this.validateThreshold(target, errs)) {
                         return false;
                     }
                     return true;
                 };
-                DruidQueryCtrl.prototype.validateSelectQuery = function (target, errs) {
-                    if (!target.selectThreshold && target.selectThreshold <= 0) {
-                        errs.selectThreshold = "Must specify a positive number";
-                        return false;
-                    }
+                DruidQueryCtrl.prototype.validateScanQuery = function (target, errs) {
                     return true;
                 };
                 DruidQueryCtrl.prototype.validateSelectorFilter = function (target) {
@@ -373,7 +438,7 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     if (!target.currentFilter.dimension) {
                         return "Must provide dimension name for javascript filter.";
                     }
-                    if (!target.currentFilter["function"]) {
+                    if (!target.currentFilter.function) {
                         return "Must provide func value for javascript filter.";
                     }
                     return null;
@@ -465,12 +530,12 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     if (!this.isValidArithmeticPostAggregatorFn(target.currentPostAggregator.fn)) {
                         return "Invalid arithmetic function";
                     }
-                    if (!target.currentPostAggregator.fields) {
+                    if (!target.currentPostAggregator.fieldNames) {
                         return "Must provide a list of fields for arithmetic post aggregator.";
                     }
                     else {
-                        if (!Array.isArray(target.currentPostAggregator.fields)) {
-                            target.currentPostAggregator.fields = target.currentPostAggregator.fields
+                        if (!Array.isArray(target.currentPostAggregator.fieldNames)) {
+                            target.currentPostAggregator.fields = target.currentPostAggregator.fieldNames
                                 .split(",")
                                 .map(function (f) { return f.trim(); })
                                 .map(function (f) { return { type: "fieldAccess", fieldName: f }; });
@@ -497,7 +562,7 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     }
                     if (this.target.shouldOverrideGranularity) {
                         if (this.target.customGranularity) {
-                            if (!lodash_1.default.includes(this.customGranularity, this.target.customGranularity)) {
+                            if (!lodash_1.default.includes(this.customGranularities, this.target.customGranularity)) {
                                 errs.customGranularity = "Invalid granularity.";
                             }
                         }
@@ -530,7 +595,7 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                             }
                         }
                     }
-                    if (lodash_1.default.isEmpty(this.target.aggregators) && !lodash_1.default.isEqual(this.target.queryType, "select")) {
+                    if (lodash_1.default.isEmpty(this.target.aggregators) && !lodash_1.default.isEqual(this.target.queryType, "scan")) {
                         errs.aggregators = "You must supply at least one aggregator";
                     }
                     if (this.addPostAggregatorMode) {

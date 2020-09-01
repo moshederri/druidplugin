@@ -74,7 +74,7 @@ export default class DruidDatasource {
           granularity = { "type": "period", "period": "P1D", "timeZone": this.periodGranularity }
         }
       }
-      return this.doQuery(roundedFrom, to, granularity, target, options);
+      return this.doQuery(from, to, granularity, target, options);
     });
 
     return this.q.all(promises).then(results => {
@@ -96,7 +96,6 @@ export default class DruidDatasource {
     let selectDimensions = target.selectDimensions;
     let scanColumns = target.scanColumns;
 
-    
     if (target.queryType === 'topN') {
       let threshold = target.threshold;
       let metric = target.druidMetric;

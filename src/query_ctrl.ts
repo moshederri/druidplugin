@@ -170,7 +170,6 @@ export class DruidQueryCtrl extends QueryCtrl {
     };
 
     this.getScanColumns = (query, callback) => {
-      console.log("getScanColumns.query: " + query);
       return this.datasource.getDimensionsAndMetrics(this.target.druidDS)
       .then(function (dimsAndMetrics) {
       callback([].concat(dimsAndMetrics.metrics).concat(dimsAndMetrics.dimensions));

@@ -24,3 +24,11 @@ This plugin was originally developed by Quantiply Corporation (Supported for Gra
 This plugin was further enhanced by Carl Bergquist (https://github.com/grafana/grafana/pull/3328) (to support it on Grafana version 2.5 & 2.6) and Abhishek Sant (https://github.com/grafana-druid-plugin/druidplugin) who cloned the code source from the Pull Request by Carl Bergquist and changed the plugin to have it work on Grafana-3.0.
 
 All the credits for the original code and enahcement to 2.5 goes to Quantiply, Carl Bergquist and Abhishek Sant. 
+
+## Running locally
+
+$ npm install -g npm-check-updates
+$ npm-check-updates -u
+$ npm install
+$ npm install grunt --save-dev
+$ grunt

@@ -26,7 +26,7 @@ export enum Granularity {
 
 export interface LimitSpec {
   type: 'default';
-  limit: number;
+  limit?: number;
   columns: Array<OrderByColumnSpec>;
 }
 
@@ -63,6 +63,13 @@ export interface DruidSelectQuery extends AbstractDruidQuery {
   dimensions: Array<string | Object>;
   metrics: Array<string | Object>;
 }
+
+// export interface DruidScanQuery extends AbstractDruidQuery {
+//   queryType: 'scan';
+//   legacy: Boolean;
+//   resultFormat: string;
+//   columns: string | Object;
+// }
 
 export interface DruidFilterLogical {
   type: 'or' | 'and';
