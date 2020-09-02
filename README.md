@@ -4,7 +4,7 @@ Lot of features might still not be implemented. Your contributions are welcome.
 
 ## Grafana Version Compatibility:
 
-**These Druid plugin versions are supported on Grafana below version 6.3.0**
+**Tested on Grafana version 6.3.0 and 7.0.3, with Druid version 0.19.0**
 
 ## Status [version from Societe Generale (FR)]
 
@@ -16,6 +16,8 @@ Lot of features might still not be implemented. Your contributions are welcome.
 - The metricFindQuery function has been implemented,
 - add filters to variable definition, including current interval
 - other bugs have been fixed
+- getMetric fix
+
 
 ## Plugin development history
 
@@ -27,8 +29,5 @@ All the credits for the original code and enahcement to 2.5 goes to Quantiply, C
 
 ## Running locally
 
-$ npm install -g npm-check-updates
-$ npm-check-updates -u
-$ npm install
-$ npm install grunt --save-dev
-$ grunt
+- npm install grunt --save-dev
+- grunt
