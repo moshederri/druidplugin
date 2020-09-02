@@ -1,5 +1,7 @@
 This plugin is built on the top of an existing Druid plugin (https://github.com/grafana/grafana-plugins) which used to work on older Grafana versions. With the UI changes done on Grafana-3.0 the existing plugin stopped working. Lot of changes have been made to have it work on Grafana 3.0. It supports timeseries, group by, topN and Select queries.
 
+Forked from ZhanHui-Xu, and adjusted to code to work with Grafana 6.3.0 and above, with druid 0.19.0.
+
 Lot of features might still not be implemented. Your contributions are welcome.
 
 ## Grafana Version Compatibility:
