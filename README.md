@@ -27,7 +27,7 @@ This plugin was further enhanced by Carl Bergquist (https://github.com/grafana/g
 
 All the credits for the original code and enahcement to 2.5 goes to Quantiply, Carl Bergquist and Abhishek Sant. 
 
-## Running locally
+## Building
 
 - npm install grunt --save-dev
 - grunt
