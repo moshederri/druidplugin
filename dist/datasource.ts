@@ -676,7 +676,7 @@ export default class DruidDatasource {
   }
 
   getColumnData(index: string, column: string, intervals: any= false, filters: any = null): any{
-    // get all distinct element in a colomn
+    // get all distinct element in a column
     let myquery =  {
       "queryType": "groupBy",
       "dataSource": index,

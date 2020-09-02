@@ -155,6 +155,7 @@ export class DruidQueryCtrl extends QueryCtrl {
         .then(function (dimsAndMetrics) {
           callback(dimsAndMetrics.metrics);
         });
+
     };
 
     this.getMetricsPlusDimensions = (query, callback) => {
